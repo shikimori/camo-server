@@ -10,6 +10,7 @@ port            = parseInt process.env.PORT        || 8081, 10
 version         = require(Path.resolve(__dirname, "package.json")).version
 shared_key      = process.env.CAMO_KEY             || '0x24FEEDFACEDEADBEEFCAFE'
 max_redirects   = process.env.CAMO_MAX_REDIRECTS   || 4
+allowed_hosts   = (process.env.CAMO_ALLOWED_HOSTS        || '').split(',')
 camo_hostname   = process.env.CAMO_HOSTNAME        || "unknown"
 socket_timeout  = process.env.CAMO_SOCKET_TIMEOUT  || 10
 logging_enabled = process.env.CAMO_LOGGING_ENABLED || "disabled"
@@ -256,9 +257,8 @@ server = Http.createServer (req, resp) ->
 
       hmac_digest = hmac.digest('hex')
 
-      if hmac_digest == query_digest
-        url = Url.parse dest_url
-
+      url = Url.parse dest_url
+      if hmac_digest == query_digest || allowed_hosts.indexOf(url.hostname) != -1
         process_url url, transferredHeaders, resp, max_redirects
       else
         four_oh_four(resp, "checksum mismatch #{hmac_digest}:#{query_digest}")
