@@ -91,7 +91,7 @@
     return resp.connection && resp.end(str);
   };
 
-  process_url = function(url, transferredHeaders, resp, remaining_redirects) {
+  process_url = function(url, transferredHeaders, resp, remaining_redirects, filename) {
     var Protocol, queryPath, requestOptions, srcReq;
     if (url.host != null) {
       if (url.protocol === 'https:') {
@@ -136,6 +136,9 @@
             'Content-Security-Policy': default_security_headers['Content-Security-Policy'],
             'Strict-Transport-Security': default_security_headers['Strict-Transport-Security']
           };
+          if (filename) {
+            newHeaders['Content-Disposition'] = "inline; filename=\"" + filename + "\"";
+          }
           if (eTag = srcResp.headers['etag']) {
             newHeaders['etag'] = eTag;
           }
@@ -185,7 +188,7 @@
                   newUrl.protocol = url.protocol;
                 }
                 debug_log("Redirected to " + (newUrl.format()));
-                return process_url(newUrl, transferredHeaders, resp, remaining_redirects - 1);
+                return process_url(newUrl, transferredHeaders, resp, remaining_redirects - 1, filename);
               }
               break;
             case 304:
@@ -274,13 +277,16 @@
         dest_url = encoded_url;
       } else {
         url_type = 'query';
-        dest_url = QueryString.parse(url.query).url;
+        query_params = QueryString.parse(url.query);
+        dest_url = query_params.url;
+        filename = query_params.filename;
       }
       debug_log({
         type: url_type,
         url: req.url,
         headers: req.headers,
         dest: dest_url,
+        filename: filename,
         digest: query_digest
       });
       if (req.headers['via'] && req.headers['via'].indexOf(user_agent) !== -1) {
@@ -297,7 +303,7 @@
         hmac_digest = hmac.digest('hex');
         url = Url.parse(dest_url);
         if (hmac_digest === query_digest || allowed_hosts.indexOf(url.hostname) !== -1) {
-          return process_url(url, transferredHeaders, resp, max_redirects);
+          return process_url(url, transferredHeaders, resp, max_redirects, filename);
         } else {
           return four_oh_four(resp, "checksum mismatch " + hmac_digest + ":" + query_digest);
         }

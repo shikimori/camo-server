@@ -10,7 +10,7 @@ port            = parseInt process.env.PORT        || 8081, 10
 version         = require(Path.resolve(__dirname, "package.json")).version
 shared_key      = process.env.CAMO_KEY             || '0x24FEEDFACEDEADBEEFCAFE'
 max_redirects   = process.env.CAMO_MAX_REDIRECTS   || 4
-allowed_hosts   = (process.env.CAMO_ALLOWED_HOSTS        || '').split(',')
+allowed_hosts   = (process.env.CAMO_ALLOWED_HOSTS  || '').split(',')
 camo_hostname   = process.env.CAMO_HOSTNAME        || "unknown"
 socket_timeout  = process.env.CAMO_SOCKET_TIMEOUT  || 10
 logging_enabled = process.env.CAMO_LOGGING_ENABLED || "disabled"
@@ -62,7 +62,7 @@ finish = (resp, str) ->
   current_connections  = 0 if current_connections < 1
   resp.connection && resp.end str
 
-process_url = (url, transferredHeaders, resp, remaining_redirects) ->
+process_url = (url, transferredHeaders, resp, remaining_redirects, filename) ->
   if url.host?
     if url.protocol is 'https:'
       Protocol = Https
@@ -109,6 +109,9 @@ process_url = (url, transferredHeaders, resp, remaining_redirects) ->
           'Content-Security-Policy'   : default_security_headers['Content-Security-Policy']
           'Strict-Transport-Security' : default_security_headers['Strict-Transport-Security']
 
+        if filename
+          newHeaders['Content-Disposition'] = "inline; filename=\"#{filename}\""
+
         if eTag = srcResp.headers['etag']
           newHeaders['etag'] = eTag
 
@@ -151,7 +154,7 @@ process_url = (url, transferredHeaders, resp, remaining_redirects) ->
                 newUrl.protocol = url.protocol
 
               debug_log "Redirected to #{newUrl.format()}"
-              process_url newUrl, transferredHeaders, resp, remaining_redirects - 1
+              process_url newUrl, transferredHeaders, resp, remaining_redirects - 1, filename
           when 304
             srcResp.destroy()
             resp.writeHead srcResp.statusCode, newHeaders
@@ -234,13 +237,16 @@ server = Http.createServer (req, resp) ->
       dest_url = encoded_url
     else
       url_type = 'query'
-      dest_url = QueryString.parse(url.query).url
+      query_params = QueryString.parse(url.query)
+      dest_url = query_params.url
+      filename = query_params.filename
 
     debug_log({
       type:     url_type
       url:      req.url
       headers:  req.headers
       dest:     dest_url
+      filename: filename
       digest:   query_digest
     })
 
@@ -259,7 +265,7 @@ server = Http.createServer (req, resp) ->
 
       url = Url.parse dest_url
       if hmac_digest == query_digest || allowed_hosts.indexOf(url.hostname) != -1
-        process_url url, transferredHeaders, resp, max_redirects
+        process_url url, transferredHeaders, resp, max_redirects, filename
       else
         four_oh_four(resp, "checksum mismatch #{hmac_digest}:#{query_digest}")
     else
