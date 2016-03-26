@@ -52,6 +52,10 @@ Camo is configured through environment variables.
 * `CAMO_TIMING_ALLOW_ORIGIN`: The string for Camo to include in the [`Timing-Allow-Origin` header](http://www.w3.org/TR/resource-timing/#cross-origin-resources) it sends in responses to clients. The header is omitted if this environment variable is not set. (default: not set)
 * `CAMO_HOSTNAME`: The `Camo-Host` header value that Camo will send. (default: `unknown`)
 * `CAMO_KEEP_ALIVE`: Whether or not to enable keep-alive session. (default: `false`)
+* `CAMO_ALLOWED_HOSTS`: Hosts for which digest option will be ignored. (optional. no default)
+* `CAMO_ENDPOINT_PATH`: Path prefix for camo endpoint. (optional. no default)
+For endpoint `http://example.org/<digest>/<image-url>` `CAMO_ENDPOINT_PATH=''`
+For endpoint `http://example.org/camo/<digest>/<image-url>` `CAMO_ENDPOINT_PATH='/camo'`
 
 ## Testing Functionality
 

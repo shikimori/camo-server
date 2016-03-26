@@ -14,7 +14,10 @@ allowed_hosts   = (process.env.CAMO_ALLOWED_HOSTS  || '').split(',')
 camo_hostname   = process.env.CAMO_HOSTNAME        || "unknown"
 socket_timeout  = process.env.CAMO_SOCKET_TIMEOUT  || 10
 logging_enabled = process.env.CAMO_LOGGING_ENABLED || "disabled"
-keep_alive = process.env.CAMO_KEEP_ALIVE || "false"
+keep_alive      = process.env.CAMO_KEEP_ALIVE      || "false"
+endpoint_path   = process.env.CAMO_ENDPOINT_PATH   || ""
+
+endpoint_path_regex = new RegExp("^#{endpoint_path}") if endpoint_path
 
 content_length_limit = parseInt(process.env.CAMO_LENGTH_LIMIT || 5242880, 10)
 
@@ -231,7 +234,13 @@ server = Http.createServer (req, resp) ->
 
     delete(req.headers.cookie)
 
-    [query_digest, encoded_url] = url.pathname.replace(/^\//, '').split("/", 2)
+    pathname = if endpoint_path_regex
+      url.pathname.replace endpoint_path_regex, ''
+    else
+      url.pathname
+
+    [query_digest, encoded_url] = pathname.replace(/^\//, '').split("/", 2)
+
     if encoded_url = hexdec(encoded_url)
       url_type = 'path'
       dest_url = encoded_url
