@@ -47,6 +47,11 @@ default_security_headers =
   "Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'"
   "Strict-Transport-Security" : "max-age=31536000; includeSubDomains"
 
+default_transferred_headers = [
+  'if-modified-since'
+  'if-none-match'
+]
+
 four_oh_four = (resp, msg, url) ->
   error_log "#{msg}: #{url?.format() or 'unknown'}"
   resp.writeHead 404,
@@ -231,6 +236,9 @@ server = Http.createServer (req, resp) ->
       "X-XSS-Protection"        : default_security_headers["X-XSS-Protection"]
       "X-Content-Type-Options"  : default_security_headers["X-Content-Type-Options"]
       "Content-Security-Policy" : default_security_headers["Content-Security-Policy"]
+
+    for header in default_transferred_headers
+      transferredHeaders[header] = req.headers[header] if req.headers[header]
 
     delete(req.headers.cookie)
 
