@@ -29,7 +29,7 @@
 
   camo_hostname = process.env.CAMO_HOSTNAME || "unknown";
 
-  socket_timeout = process.env.CAMO_SOCKET_TIMEOUT || 10;
+  socket_timeout = parseInt(process.env.CAMO_SOCKET_TIMEOUT || 10, 10);
 
   logging_enabled = process.env.CAMO_LOGGING_ENABLED || "disabled";
 
@@ -120,7 +120,8 @@
         hostname: url.hostname,
         port: url.port,
         path: queryPath,
-        headers: transferredHeaders
+        headers: transferredHeaders,
+        timeout: socket_timeout
       };
       if (keep_alive === "false") {
         requestOptions['agent'] = false;

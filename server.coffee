@@ -6,13 +6,13 @@ Https       = require 'https'
 Crypto      = require 'crypto'
 QueryString = require 'querystring'
 
-port            = parseInt process.env.PORT        || 8081, 10
+port            = parseInt(process.env.PORT || 8081, 10)
 version         = require(Path.resolve(__dirname, "package.json")).version
 shared_key      = process.env.CAMO_KEY             || '0x24FEEDFACEDEADBEEFCAFE'
 max_redirects   = process.env.CAMO_MAX_REDIRECTS   || 4
 allowed_hosts   = (process.env.CAMO_ALLOWED_HOSTS  || '').split(',')
 camo_hostname   = process.env.CAMO_HOSTNAME        || "unknown"
-socket_timeout  = process.env.CAMO_SOCKET_TIMEOUT  || 10
+socket_timeout  = parseInt(process.env.CAMO_SOCKET_TIMEOUT || 10, 10)
 logging_enabled = process.env.CAMO_LOGGING_ENABLED || "disabled"
 keep_alive      = process.env.CAMO_KEEP_ALIVE      || "false"
 endpoint_path   = process.env.CAMO_ENDPOINT_PATH   || ""
@@ -92,6 +92,7 @@ process_url = (url, transferredHeaders, resp, remaining_redirects, filename) ->
       port: url.port
       path: queryPath
       headers: transferredHeaders
+      timeout: socket_timeout
 
     if keep_alive == "false"
       requestOptions['agent'] = false
