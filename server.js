@@ -136,7 +136,7 @@
           return four_oh_four(resp, "Content-Length exceeded", url);
         } else {
           newHeaders = {
-            'content-type': srcResp.headers['content-type'],
+            'content-type': srcResp.headers['content-type'] || '',
             'cache-control': srcResp.headers['cache-control'] || 'public, max-age=31536000',
             'Camo-Host': camo_hostname,
             'X-Frame-Options': default_security_headers['X-Frame-Options'],
@@ -255,7 +255,7 @@
   };
 
   server = Http.createServer(function(req, resp) {
-    var base, dest_url, encoded_url, error, filename, header, hmac, hmac_digest, j, len, pathname, query_digest, query_params, ref, ref1, ref2, transferredHeaders, url, url_type, user_agent;
+    var base, dest_url, encoded_url, error, filename, header, hmac, hmac_digest, j, len, pathname, query_digest, query_params, ref, ref1, ref2, ref3, transferredHeaders, url, url_type, user_agent;
     if (req.method !== 'GET' || req.url === '/') {
       resp.writeHead(200, default_security_headers);
       return resp.end('hwhat');
@@ -296,7 +296,7 @@
         url_type = 'query';
         query_params = QueryString.parse(url.query);
         dest_url = query_params.url;
-        filename = query_params.filename;
+        filename = (ref3 = query_params.filename) != null ? ref3.replace(/[^\x00-\xFF]/g, '') : void 0;
       }
       debug_log({
         type: url_type,

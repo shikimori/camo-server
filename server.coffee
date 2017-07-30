@@ -109,7 +109,7 @@ process_url = (url, transferredHeaders, resp, remaining_redirects, filename) ->
         four_oh_four(resp, "Content-Length exceeded", url)
       else
         newHeaders =
-          'content-type'              : srcResp.headers['content-type']
+          'content-type'              : srcResp.headers['content-type'] || '' # can be undefined content-type on 304 srcResp.statusCode
           'cache-control'             : srcResp.headers['cache-control'] || 'public, max-age=31536000'
           'Camo-Host'                 : camo_hostname
           'X-Frame-Options'           : default_security_headers['X-Frame-Options']
@@ -258,7 +258,7 @@ server = Http.createServer (req, resp) ->
       url_type = 'query'
       query_params = QueryString.parse(url.query)
       dest_url = query_params.url
-      filename = query_params.filename
+      filename = query_params.filename?.replace(/[^\x00-\xFF]/g, '')
 
     debug_log({
       type:     url_type
