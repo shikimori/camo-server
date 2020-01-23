@@ -43,7 +43,7 @@
 
   content_length_limit = parseInt(process.env.CAMO_LENGTH_LIMIT || 5242880, 10);
 
-  content_length_limit_redirect = process.env.CAMO_LENGTH_LIMIT_REDIRECT || null;
+  content_length_limit_redirect = process.env.CAMO_LENGTH_LIMIT_REDIRECT || false;
 
   accepted_image_mime_types = JSON.parse(Fs.readFileSync(Path.resolve(__dirname, "mime-types.json"), {
     encoding: 'utf8'
@@ -101,8 +101,8 @@
   };
 
   content_length_exceeded = function(resp, msg, url) {
-    if (content_length_limit_redirect != null) {
-      return three_oh_three(resp, content_length_limit_redirect);
+    if (content_length_limit_redirect) {
+      return three_oh_three(resp, url.format());
     } else {
       return four_oh_four(resp, msg, url);
     }
