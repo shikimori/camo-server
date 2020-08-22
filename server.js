@@ -335,7 +335,7 @@
           return four_oh_four(resp, "could not create checksum");
         }
         hmac_digest = hmac.digest('hex');
-        url = Url.parse(dest_url);
+        url = Url.parse(dest_url.replace(/&amp;/, '&'));
         if (hmac_digest === query_digest || allowed_hosts.indexOf(url.hostname) !== -1) {
           return process_url(url, transferredHeaders, resp, max_redirects, filename);
         } else {
