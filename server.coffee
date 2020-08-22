@@ -295,7 +295,8 @@ server = Http.createServer (req, resp) ->
 
       hmac_digest = hmac.digest('hex')
 
-      url = Url.parse dest_url
+      # added .replace(/&amp;/, '&') to compensate url encoding in shkimori
+      url = Url.parse dest_url.replace(/&amp;/, '&')
       if hmac_digest == query_digest || allowed_hosts.indexOf(url.hostname) != -1
         process_url url, transferredHeaders, resp, max_redirects, filename
       else
