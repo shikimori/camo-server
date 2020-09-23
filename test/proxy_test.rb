@@ -9,8 +9,10 @@ require 'test/unit'
 
 module CamoProxyTests
   def config
-    { 'key'  => ENV['CAMO_KEY']  || "0x24FEEDFACEDEADBEEFCAFE",
-      'host' => ENV['CAMO_HOST'] || "http://localhost:8081" }
+    {
+      'key' => ENV['CAMO_KEY'] || '0x24FEEDFACEDEADBEEFCAFE',
+      'host' => ENV['CAMO_HOST'] || 'http://localhost:8081'
+    }
   end
 
   def spawn_server(path)
@@ -18,9 +20,9 @@ module CamoProxyTests
     config = "test/servers/#{path}.ru"
     host = "localhost:#{port}"
     pid = fork do
-      STDOUT.reopen "/dev/null"
-      STDERR.reopen "/dev/null"
-      exec "rackup", "--port", port.to_s, config
+      STDOUT.reopen '/dev/null'
+      STDERR.reopen '/dev/null'
+      exec 'rackup', '--port', port.to_s, config
     end
     sleep 2
     begin
@@ -53,7 +55,7 @@ module CamoProxyTests
   end
 
   def test_follows_https_redirect_for_image_links
-    response = request('http://dl.dropbox.com/u/602885/github/soldier-squirrel.jpg')
+    response = request('http://kawai.shikimori.one/system/users/x48/1.png')
     assert_equal(200, response.code)
   end
 
@@ -66,17 +68,17 @@ module CamoProxyTests
   def test_always_sets_security_headers
     ['/', '/status'].each do |path|
       response = RestClient.get("#{config['host']}#{path}")
-      assert_equal "deny", response.headers[:x_frame_options]
+      assert_equal 'deny', response.headers[:x_frame_options]
       assert_equal "default-src 'none'; img-src data:; style-src 'unsafe-inline'", response.headers[:content_security_policy]
-      assert_equal "nosniff", response.headers[:x_content_type_options]
-      assert_equal "max-age=31536000; includeSubDomains", response.headers[:strict_transport_security]
+      assert_equal 'nosniff', response.headers[:x_content_type_options]
+      assert_equal 'max-age=31536000; includeSubDomains', response.headers[:strict_transport_security]
     end
 
-    response = request('http://dl.dropbox.com/u/602885/github/soldier-squirrel.jpg')
-    assert_equal "deny", response.headers[:x_frame_options]
+    response = request('http://kawai.shikimori.one/system/users/x48/1.png')
+    assert_equal 'deny', response.headers[:x_frame_options]
     assert_equal "default-src 'none'; img-src data:; style-src 'unsafe-inline'", response.headers[:content_security_policy]
-    assert_equal "nosniff", response.headers[:x_content_type_options]
-    assert_equal "max-age=31536000; includeSubDomains", response.headers[:strict_transport_security]
+    assert_equal 'nosniff', response.headers[:x_content_type_options]
+    assert_equal 'max-age=31536000; includeSubDomains', response.headers[:strict_transport_security]
   end
 
   def test_proxy_valid_image_url
@@ -96,7 +98,7 @@ module CamoProxyTests
 
   def test_strict_image_content_type_checking
     assert_raise RestClient::ResourceNotFound do
-      request("http://calm-shore-1799.herokuapp.com/foo.png")
+      request('http://calm-shore-1799.herokuapp.com/foo.png')
     end
   end
 
@@ -135,9 +137,9 @@ module CamoProxyTests
   def test_forwards_404_with_image
     spawn_server(:not_found) do |host|
       uri = request_uri("http://#{host}/octocat.jpg")
-      response = RestClient.get(uri){ |response, request, result| response }
+      response = RestClient.get(uri) { |response, _request, _result| response }
       assert_equal(404, response.code)
-      assert_equal("image/jpeg", response.headers[:content_type])
+      assert_equal('image/jpeg', response.headers[:content_type])
     end
   end
 
@@ -198,17 +200,17 @@ module CamoProxyTests
 
   def test_request_from_self
     assert_raise RestClient::ResourceNotFound do
-      uri = request_uri("http://camo-localhost-test.herokuapp.com")
-      response = request( uri )
+      uri = request_uri('http://camo-localhost-test.herokuapp.com')
+      response = request(uri)
     end
   end
 
   def test_404s_send_cache_headers
-    uri = request_uri("http://example.org/")
-    response = RestClient.get(uri){ |response, request, result| response }
+    uri = request_uri('http://example.org/')
+    response = RestClient.get(uri) { |response, _request, _result| response }
     assert_equal(404, response.code)
-    assert_equal("0", response.headers[:expires])
-    assert_equal("no-cache, no-store, private, must-revalidate", response.headers[:cache_control])
+    assert_equal('0', response.headers[:expires])
+    assert_equal('no-cache, no-store, private, must-revalidate', response.headers[:cache_control])
   end
 end
 
@@ -217,7 +219,8 @@ class CamoProxyQueryStringTest < Test::Unit::TestCase
 
   def request_uri(image_url)
     hexdigest = OpenSSL::HMAC.hexdigest(
-      OpenSSL::Digest.new('sha1'), config['key'], image_url)
+      OpenSSL::Digest.new('sha1'), config['key'], image_url
+    )
 
     uri = Addressable::URI.parse("#{config['host']}/#{hexdigest}")
     uri.query_values = { 'url' => image_url, 'repo' => '', 'path' => '' }
@@ -234,12 +237,13 @@ class CamoProxyPathTest < Test::Unit::TestCase
   include CamoProxyTests
 
   def hexenc(image_url)
-    image_url.to_enum(:each_byte).map { |byte| "%02x" % byte }.join
+    image_url.to_enum(:each_byte).map { |byte| '%02x' % byte }.join
   end
 
   def request_uri(image_url)
     hexdigest = OpenSSL::HMAC.hexdigest(
-      OpenSSL::Digest.new('sha1'), config['key'], image_url)
+      OpenSSL::Digest.new('sha1'), config['key'], image_url
+    )
     encoded_image_url = hexenc(image_url)
     "#{config['host']}/#{hexdigest}/#{encoded_image_url}"
   end
