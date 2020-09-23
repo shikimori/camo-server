@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "coffee-script": "^1.12.6"
+  },
+  "scripts": {
+    "build": "coffee -c server.coffee"
   }
 }
