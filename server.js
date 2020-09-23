@@ -127,7 +127,7 @@
         four_oh_four(resp, "Unknown protocol", url);
         return;
       }
-      queryPath = url.pathname;
+      queryPath = encodeURI(url.pathname);
       if (url.query != null) {
         queryPath += "?" + url.query;
       }

@@ -93,7 +93,7 @@ process_url = (url, transferredHeaders, resp, remaining_redirects, filename) ->
       four_oh_four(resp, "Unknown protocol", url)
       return
 
-    queryPath = url.pathname
+    queryPath = encodeURI(url.pathname)
     if url.query?
       queryPath += "?#{url.query}"
 
