@@ -93,6 +93,8 @@ process_url = (url, transferredHeaders, resp, remaining_redirects, filename) ->
       four_oh_four(resp, "Unknown protocol", url)
       return
 
+    # NOTE: encodeURI fixes "TypeError [ERR_UNESCAPED_CHARACTERS] [ERR_UNESCAPED_CHARACTERS]: Request path contains unescaped characters"
+    # sample of broken url https://i1.wp.com/studiodomo.jp/wordpress/wp-content/uploads/2015/07/%E9%9B%A8%E5%AE%AE%E5%93%B2%E3%81%95%E3%82%93.jpg
     queryPath = encodeURI(url.pathname)
     if url.query?
       queryPath += "?#{url.query}"
