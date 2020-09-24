@@ -22,6 +22,8 @@ endpoint_path_regex = new RegExp("^#{endpoint_path}") if endpoint_path
 content_length_limit = parseInt(process.env.CAMO_LENGTH_LIMIT || 5242880, 10)
 content_length_limit_redirect = process.env.CAMO_LENGTH_LIMIT_REDIRECT || false
 
+content_403_redirect = process.env.CAMO_403_REDIRECT || false
+
 accepted_image_mime_types = JSON.parse(Fs.readFileSync(
   Path.resolve(__dirname, "mime-types.json"),
   encoding: 'utf8'
@@ -184,6 +186,11 @@ process_url = (url, transferredHeaders, resp, remaining_redirects, filename) ->
             resp.writeHead srcResp.statusCode, newHeaders
             finish resp, "Not Modified"
           else
+            if srcResp.statusCode == 403 && content_403_redirect
+              srcResp.destroy()
+              three_oh_three(resp, url.format())
+              return
+
             contentType = newHeaders['content-type']
 
             unless contentType?
