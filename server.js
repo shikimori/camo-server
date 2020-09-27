@@ -140,7 +140,7 @@
         port: url.port,
         path: queryPath,
         headers: transferredHeaders,
-        timeout: socket_timeout
+        timeout: socket_timeout * 1000
       };
       if (keep_alive === "false") {
         requestOptions['agent'] = false;
