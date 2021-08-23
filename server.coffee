@@ -11,7 +11,7 @@ version         = require(Path.resolve(__dirname, "package.json")).version
 shared_key      = process.env.CAMO_KEY             || '0x24FEEDFACEDEADBEEFCAFE'
 max_redirects   = process.env.CAMO_MAX_REDIRECTS   || 4
 allowed_hosts   = (process.env.CAMO_ALLOWED_HOSTS  || '').split(',')
-allowed_hosts_token = process.env.CAMO_ALLOWED_HOSTS_TOKEN || "allow"
+public_token    = process.env.CAMO_ALLOWED_HOSTS_PUBLIC_TOKEN || "allow"
 camo_hostname   = process.env.CAMO_HOSTNAME        || "unknown"
 socket_timeout  = parseInt(process.env.CAMO_SOCKET_TIMEOUT || 10, 10)
 logging_enabled = process.env.CAMO_LOGGING_ENABLED || "disabled"
@@ -307,7 +307,7 @@ server = Http.createServer (req, resp) ->
 
       # added .replace(/&amp;/, '&') to compensate url encoding in shkimori
       url = Url.parse dest_url.replace(/&amp;/, '&')
-      if hmac_digest == query_digest || (allowed_hosts.indexOf(url.hostname) != -1 && query_params.token == allowed_hosts_token)
+      if hmac_digest == query_digest || (allowed_hosts.indexOf(url.hostname) != -1 && query_params.token == public_token)
         process_url url, transferredHeaders, resp, max_redirects, filename
       else
         four_oh_four(resp, "checksum mismatch #{hmac_digest}:#{query_digest}")
