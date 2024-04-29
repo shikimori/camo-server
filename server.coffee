@@ -195,9 +195,12 @@ process_url = (url, transferredHeaders, resp, remaining_redirects, filename) ->
             contentType = newHeaders['content-type']
 
             unless contentType?
-              srcResp.destroy()
-              four_oh_four(resp, "No content-type returned", url)
-              return
+              lookup = MimeTypes.lookup url.pathname
+              if lookup is no
+                srcResp.destroy()
+                four_oh_four(resp, "No content-type returned", url)
+                return
+              newHeaders['content-type'] = contentType = lookup
 
             contentTypePrefix = contentType.split(";")[0].toLowerCase()
 
