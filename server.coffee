@@ -58,14 +58,15 @@ default_transferred_headers = [
 
 four_oh_four = (resp, msg, url) ->
   error_log "#{msg}: #{url?.format() or 'unknown'}"
-  resp.writeHead 404,
-    expires: "0"
-    "Cache-Control": "no-cache, no-store, private, must-revalidate"
-    "X-Frame-Options"           : default_security_headers["X-Frame-Options"]
-    "X-XSS-Protection"          : default_security_headers["X-XSS-Protection"]
-    "X-Content-Type-Options"    : default_security_headers["X-Content-Type-Options"]
-    "Content-Security-Policy"   : default_security_headers["Content-Security-Policy"]
-    "Strict-Transport-Security" : default_security_headers["Strict-Transport-Security"]
+  unless resp.headersSent
+    resp.writeHead 404,
+      expires: "0"
+      "Cache-Control": "no-cache, no-store, private, must-revalidate"
+      "X-Frame-Options"           : default_security_headers["X-Frame-Options"]
+      "X-XSS-Protection"          : default_security_headers["X-XSS-Protection"]
+      "X-Content-Type-Options"    : default_security_headers["X-Content-Type-Options"]
+      "Content-Security-Policy"   : default_security_headers["Content-Security-Policy"]
+      "Strict-Transport-Security" : default_security_headers["Strict-Transport-Security"]
 
   finish resp, "Not Found"
 
