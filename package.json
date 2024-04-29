@@ -1,9 +1,11 @@
 {
   "name": "camo",
   "version": "2.3.0",
-  "dependencies": {},
+  "dependencies": {
+    "mime-types": "*"
+  },
   "engines": {
-    "node": ">6.11.1"
+    "node": ">=20"
   },
   "scripts": {
     "build": "coffee -c server.coffee"
