@@ -148,7 +148,7 @@
         requestOptions['agent'] = false;
       }
       srcReq = Protocol.get(requestOptions, function(srcResp) {
-        var contentType, contentTypePrefix, content_length, eTag, expiresHeader, is_finished, lastModified, newHeaders, newUrl, origin;
+        var contentType, contentTypePrefix, content_length, eTag, expiresHeader, is_finished, lastModified, lookup, newHeaders, newUrl, origin;
         is_finished = true;
         debug_log(srcResp.headers);
         content_length = srcResp.headers['content-length'];
@@ -233,9 +233,13 @@
               }
               contentType = newHeaders['content-type'];
               if (contentType == null) {
-                srcResp.destroy();
-                four_oh_four(resp, "No content-type returned", url);
-                return;
+                lookup = MimeTypes.lookup(url.pathname);
+                if (lookup === false) {
+                  srcResp.destroy();
+                  four_oh_four(resp, "No content-type returned", url);
+                  return;
+                }
+                newHeaders['content-type'] = contentType = lookup;
               }
               contentTypePrefix = contentType.split(";")[0].toLowerCase();
               if (indexOf.call(accepted_image_mime_types, contentTypePrefix) < 0) {
@@ -272,7 +276,7 @@
   hexdec = function(str) {
     var buf, i, j, ref;
     if (str && str.length > 0 && str.length % 2 === 0 && !str.match(/[^0-9a-f]/)) {
-      buf = new Buffer(str.length / 2);
+      buf = new Buffer.alloc(str.length / 2);
       for (i = j = 0, ref = str.length; j < ref; i = j += 2) {
         buf[i / 2] = parseInt(str.slice(i, +(i + 1) + 1 || 9e9), 16);
       }
