@@ -192,6 +192,9 @@
           if (srcResp.headers['content-encoding']) {
             newHeaders['content-encoding'] = srcResp.headers['content-encoding'];
           }
+          if (srcResp.headers['access-control-allow-origin']) {
+            newHeaders['Access-Control-Allow-Origin'] = srcResp.headers['access-control-allow-origin'];
+          }
           srcResp.on('end', function() {
             if (is_finished) {
               return finish(resp);

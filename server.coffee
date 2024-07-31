@@ -160,6 +160,9 @@ process_url = (url, transferredHeaders, resp, remaining_redirects, filename) ->
         if srcResp.headers['content-encoding']
           newHeaders['content-encoding'] = srcResp.headers['content-encoding']
 
+        if srcResp.headers['access-control-allow-origin']
+          newHeaders['Access-Control-Allow-Origin'] = srcResp.headers['access-control-allow-origin']
+
         srcResp.on 'end', ->
           if is_finished
             finish resp
