@@ -48,7 +48,7 @@ default_security_headers =
   "X-Frame-Options": "deny"
   "X-XSS-Protection": "1; mode=block"
   "X-Content-Type-Options": "nosniff"
-  "Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src 'self' data:;"
+  "Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'"
   "Strict-Transport-Security" : "max-age=31536000; includeSubDomains"
 
 default_transferred_headers = [
